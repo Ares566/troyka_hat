@@ -42,7 +42,7 @@ where
         }
     }
 
-    /// Init wakes MPU6050 and verifies register addr, e.g. in i2c
+    /// Init
     pub fn init<D: DelayMs<u8>>(&mut self, delay: &mut D) -> Result<(), TroykaHatError<E>> {
         self.wake(delay)?;
         self.verify()?;
@@ -50,7 +50,7 @@ where
         Ok(())
     }
 
-    // TODO always output
+    // TODO something strange happens here, mystic place
     pub fn pin_mode(&mut self, pin: u8) {
         let data = 0x0001 << pin;
         //let send_data:u16 = ((data & 0xff) << 8) | ((data >> 8) & 0xff);
@@ -63,6 +63,18 @@ where
             .write(self.i2c_addr, &[ANALOG_WRITE, (pin & 0xff), (value & 0xff)]);
     }
 
+    pub fn pwm_freq(&mut self, freq: u16) {
+        // "modern" way))
+        let bytes = freq.to_be_bytes();
+
+        // old school
+        // let b1 = (freq & 0xff) as u8;
+        // let b2 = ((freq >> 8) & 0xff) as u8;
+
+        self.i2c
+            .write(self.i2c_addr, &[PWM_FREQ, bytes[0], bytes[1]]);
+    }
+
     /// Wakes TroykaHat
     fn wake<D: DelayMs<u8>>(&mut self, delay: &mut D) -> Result<(), TroykaHatError<E>> {
         // TODO I2cdev::new("/dev/i2c-1").map_err(device::TroykaHatError::I2c)?;
@@ -72,7 +84,7 @@ where
 
     /// Verifies device address with WHOAMI.addr() Register
     fn verify(&mut self) -> Result<(), TroykaHatError<E>> {
-        // TODO
+        // TODO self.read_byte(WHOAMI) != TROYKA_I2C_ADDRESS ???
         // let mut buf: [u8; 32] = [0; 32];
         // self.read_bytes(WHOAMI, &mut buf)?;
         // if let Ok(s) = str::from_utf8(&buf) {
