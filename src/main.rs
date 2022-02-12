@@ -1,4 +1,4 @@
-pub mod device;
+pub mod lib;
 
 use std::{
     hash::Hasher,
@@ -10,9 +10,9 @@ use embedded_hal::blocking::delay::DelayMs;
 use i2cdev::{core::I2CDevice, linux::LinuxI2CError};
 use linux_embedded_hal::{Delay, I2cdev};
 
-fn main() -> Result<(), device::TroykaHatError<LinuxI2CError>> {
-    let i2c = I2cdev::new("/dev/i2c-1").map_err(device::TroykaHatError::I2c)?;
-    let mut th = device::TroykaHat::new(i2c);
+fn main() -> Result<(), lib::TroykaHatError<LinuxI2CError>> {
+    let i2c = I2cdev::new("/dev/i2c-1").map_err(lib::TroykaHatError::I2c)?;
+    let mut th = lib::TroykaHat::new(i2c);
     let mut delay = Delay;
 
     th.init(&mut delay)?;
